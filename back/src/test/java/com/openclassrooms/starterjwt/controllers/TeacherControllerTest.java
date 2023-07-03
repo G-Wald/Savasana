@@ -78,7 +78,7 @@ class TeacherControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @DisplayName("Id is not valid")
+    @DisplayName("test return all teachers")
     @Test
     void testFindAll() {
         List<Teacher> teachers = new ArrayList<>();

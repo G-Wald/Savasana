@@ -1,10 +1,16 @@
 package com.openclassrooms.starterjwt.controllers;
 
+import com.openclassrooms.starterjwt.dto.UserDto;
+import com.openclassrooms.starterjwt.mapper.UserMapper;
+import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.payload.request.LoginRequest;
 import com.openclassrooms.starterjwt.payload.request.SignupRequest;
+import com.openclassrooms.starterjwt.payload.response.MessageResponse;
 import com.openclassrooms.starterjwt.repository.UserRepository;
 import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
 import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
+import com.openclassrooms.starterjwt.services.UserService;
+import lombok.var;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,74 +18,99 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+@DataJpaTest
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class AuthControllerTest {
 
-    @Mock
-    private LoginRequest loginRequest;
-    @Mock
-    private SignupRequest signupRequest;
-    @Mock
-    private AuthenticationManager authenticationManager;
-    @Mock
-    private JwtUtils jwtUtils;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
+    @Autowired
     private UserRepository userRepository;
-    @Mock
-    private Authentication authentication;
-    @Mock
-    private UserDetailsImpl userDetailsImpl;
     private AuthController authController;
+
+    private PasswordEncoder passwordEncoder;
+    private JwtUtils jwtUtils;
+    private AuthenticationManager authenticationManager;
+
+    public String Email = "toto@gmail.com";
+
+    public String Password = "tutu";
+    public String FirstName = "Harlan";
+    public String LastName = "Coben";
 
     @BeforeEach
     void setUp(){
 
-        this.authenticationManager = Mockito.mock(AuthenticationManager.class);
-        this.authentication = Mockito.mock(Authentication.class);
-        this.userDetailsImpl = Mockito.mock(UserDetailsImpl.class);
-        this.jwtUtils = new JwtUtils();
-        this.passwordEncoder = Mockito.mock(PasswordEncoder.class);
-        this.userRepository = Mockito.mock(UserRepository.class);
-        this.authController = new AuthController(authenticationManager,
-                 passwordEncoder,
-                 jwtUtils,
-                 userRepository) ;
+        passwordEncoder = Mockito.mock(PasswordEncoder.class);
+        authenticationManager = new AuthenticationManager() {
+            @Override
+            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+                return null;
+            }
+        };
+        jwtUtils = new JwtUtils();
+
+        authController = new AuthController(authenticationManager,
+                passwordEncoder,
+                jwtUtils,
+                userRepository);
+        //userController = new UserController( userService, userMapper);
+        //this.authController = new AuthController(authenticationManager,                 passwordEncoder,                 jwtUtils,                 userRepository) ;
     }
 
 
-    @DisplayName("user account is valid")
+    @DisplayName("Registration valid")
     @Test
-    void testLoginAuthSuccess(){
-        when(loginRequest.getEmail()).thenReturn("toto@gmail.com");
-        when(loginRequest.getPassword()).thenReturn("toto");
-        when(authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())))
-                .thenReturn(new UsernamePasswordAuthenticationToken(null,null));
-        when(authentication.getPrincipal()).thenReturn(userDetailsImpl);
-        when(jwtUtils.generateJwtToken(authentication)).thenReturn("token");
-
-
-        //when(userDetailsImpl.getUsername()).thenReturn("toto@gmail.com");
-        //when(userDetailsImpl.getPassword()).thenReturn("toto");
-
-        //userDetailsImpl = new UserDetailsImpl(000001l,"toto","to","to",true,"toto");
-
-
-
-        final ResponseEntity result = authController.authenticateUser(loginRequest);
-        assertEquals(5, result.getBody());
-
+    void RegisterAuthSuccess_test(){
+        Mockito.when(passwordEncoder.encode(anyString())).thenReturn(Password);
+        var signupRequest = new SignupRequest();
+        signupRequest.setEmail(Email);
+        signupRequest.setFirstName(FirstName);
+        signupRequest.setLastName(LastName);
+        signupRequest.setPassword(Password);
+        final ResponseEntity response = authController.registerUser(signupRequest);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var userInDb = userRepository.findByEmail(Email);
+        assertTrue( userInDb.isPresent());
     }
 
+    @DisplayName("Registration invalid email already in database")
+    @Test
+    void RegisterAuthAlreadyInDb_test(){
+        //Save user in Db
+        User user = new User();
+        user.setEmail(Email);
+        user.setFirstName(FirstName);
+        user.setLastName(LastName);
+        user.setPassword(Password);
+        user.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        userRepository.save(user);
+
+        var signupRequest = new SignupRequest();
+        signupRequest.setEmail(Email);
+        signupRequest.setFirstName(FirstName);
+        signupRequest.setLastName(LastName);
+        signupRequest.setPassword(Password);
+        final ResponseEntity response = authController.registerUser(signupRequest);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Error: Email is already taken!", ((MessageResponse)response.getBody()).getMessage());
+    }
 }

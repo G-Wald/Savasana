@@ -4,101 +4,47 @@ import com.openclassrooms.starterjwt.dto.UserDto;
 import com.openclassrooms.starterjwt.mapper.UserMapper;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
-import com.openclassrooms.starterjwt.security.jwt.JwtUtils;
+import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
 import com.openclassrooms.starterjwt.services.UserService;
 import lombok.var;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockitoSession;
 import static org.mockito.Mockito.when;
 
-//@DataJpaTest
 @ExtendWith(MockitoExtension.class)
-//@ContextConfiguration(classes = { SpringTestConfiguration.class })
 class UserControllerTest{
 
-    @Mock
     private UserRepository userRepository;
-
-    @InjectMocks
     private UserController userController;
-
-    @Autowired
     private UserMapper userMapper;
-
-    @Mock
     private UserService userService;
 
-
     @BeforeEach
-    void setUpTest(){
-        MockitoAnnotations.initMocks(this);
-        //userRepository = Mockito.mock(UserRepository.class);
-        //userMapper = Mockito.mock(UserMapper.class);
-       //userService = new UserService(userRepository);
-        //userController = new UserController( userService, userMapper);
-    }
-
-    @Test
-    void testUserDb() {
-        User user = new User();
-        user.setPassword("toto");
-        user.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
-        userRepository.save(user);
-
-        ResponseEntity<?> response = userController.save(user.getId().toString());
-        UserDto userDto = new UserDto();
-        userDto.setPassword("toto");
-        userDto.setId(user.getId());
-        assertEquals(userDto ,response.getBody());
-    }
-
-    @Test
-    void UserFindByIdTestDb() {
-        User user = new User();
-        user.setPassword("toto");
-        user.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
-        Optional<User> optUser = Optional.ofNullable(user);
-        Mockito.when(userRepository.findById(anyLong())).thenReturn(optUser);
-        //Mockito.when(userService.findById(user.getId())).thenReturn(user);
-
-        ResponseEntity<?> response = userController.findById(user.getId().toString());
-        UserDto userDto = new UserDto();
-        userDto.setPassword("toto");
-        userDto.setId(user.getId());
-        assertEquals(userDto ,response.getBody());
+    void setUp(){
+        userRepository = Mockito.mock(UserRepository.class);
+        userMapper = Mockito.mock(UserMapper.class);
+        userService = new UserService(userRepository);
+        userController = new UserController( userService, userMapper);
     }
     @Test
-    void findById() {
+    void findById_Test() {
         String id = "00000001";
         User user = new User();
 
@@ -127,6 +73,23 @@ class UserControllerTest{
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
     @Test
-    void save() {
+    void deleteUser_Test() {
+        User user = new User();
+        user.setPassword("toto");
+        user.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        Optional<User> optUser = Optional.ofNullable(user);
+        var userDetails = new UserDetailsImpl(user.getId(), user.getEmail(),user.getFirstName(),user.getLastName(),true,user.getPassword());
+        Authentication authentication = Mockito.mock(Authentication.class);
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        SecurityContextHolder.setContext(securityContext);
+
+        //Supprimer les mock pour utiliser une database
+        Mockito.when(userRepository.findById(anyLong())).thenReturn(optUser);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(userDetails);
+
+        ResponseEntity<?> response = userController.save(user.getId().toString());
+        assertEquals(HttpHeaders.EMPTY,response.getHeaders());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }
