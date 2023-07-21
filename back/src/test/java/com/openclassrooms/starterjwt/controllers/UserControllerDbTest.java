@@ -61,7 +61,7 @@ public class UserControllerDbTest {
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
-        //Mocl l'authentification
+        //Mock l'authentification
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
         Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(userDetails);
 
