@@ -1,7 +1,9 @@
 package com.openclassrooms.starterjwt.controllers;
 
+import com.openclassrooms.starterjwt.dto.SessionDto;
 import com.openclassrooms.starterjwt.dto.UserDto;
 import com.openclassrooms.starterjwt.mapper.UserMapper;
+import com.openclassrooms.starterjwt.models.Session;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.repository.UserRepository;
 import com.openclassrooms.starterjwt.security.services.UserDetailsImpl;
@@ -12,84 +14,127 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+@DataJpaTest
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class UserControllerTest{
 
+    @Autowired
     private UserRepository userRepository;
+    private SecurityContextHolder securityContextHolder;
     private UserController userController;
     private UserMapper userMapper;
     private UserService userService;
 
+
     @BeforeEach
-    void setUp(){
-        userRepository = Mockito.mock(UserRepository.class);
+    public void setup() {
         userMapper = Mockito.mock(UserMapper.class);
+        securityContextHolder = new SecurityContextHolder();
         userService = new UserService(userRepository);
         userController = new UserController( userService, userMapper);
     }
-    @Test
-    void findById_Test() {
-        String id = "00000001";
+
+    public User CreateAndSaveuser(){
+        //Save a user
         User user = new User();
-
-        user.setId(Long.valueOf(id));
-        user.setFirstName("Alan");
-        user.setLastName("Turing");
-        user.setPassword("compila");
-        LocalDateTime localDate = LocalDateTime.now();
-        user.setCreatedAt(localDate);
-        user.setUpdatedAt(localDate);
-        Optional<User> opt = Optional.ofNullable(user);
-
+        user.setFirstName("alan");
+        user.setLastName("turing");
+        user.setEmail("toto@gmail.com");
+        user.setPassword("tutu");
+        userRepository.save(user);
+        return user;
+    }
+    public UserDto ToDTO(User user){
+        if ( user == null ) {
+            return null;
+        }
         UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setFirstName(user.getFirstName());
-        userDto.setLastName(user.getLastName());
-        userDto.setPassword(user.getPassword());
-        userDto.setCreatedAt(user.getCreatedAt());
-        userDto.setUpdatedAt(user.getUpdatedAt());
-        when(userRepository.findById(Long.valueOf(id))).thenReturn(opt);
-        when(userMapper.toDto(user)).thenReturn(userDto);
-        var response = userController.findById(id);
-        //Retour de données
-        assertEquals( userDto,response.getBody());
-        assertEquals(HttpHeaders.EMPTY,response.getHeaders());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        userDto.setId( user.getId() );
+        userDto.setFirstName( user.getFirstName() );
+        userDto.setLastName( user.getLastName());
+        userDto.setCreatedAt( user.getCreatedAt() );
+        userDto.setUpdatedAt( user.getUpdatedAt() );
+
+        return userDto;
     }
+
     @Test
-    void deleteUser_Test() {
-        User user = new User();
-        user.setPassword("toto");
-        user.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
-        Optional<User> optUser = Optional.ofNullable(user);
-        var userDetails = new UserDetailsImpl(user.getId(), user.getEmail(),user.getFirstName(),user.getLastName(),true,user.getPassword());
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-        SecurityContextHolder.setContext(securityContext);
+    @DirtiesContext
+    void findById_Test() {
+        //User not in db
+        var response = userController.findById("1");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull( response.getBody());
 
-        //Supprimer les mock pour utiliser une database
-        Mockito.when(userRepository.findById(anyLong())).thenReturn(optUser);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(userDetails);
+        //Add user in db
+        User user = CreateAndSaveuser();
 
-        ResponseEntity<?> response = userController.save(user.getId().toString());
-        assertEquals(HttpHeaders.EMPTY,response.getHeaders());
+        UserDto userDto = ToDTO(user);
+
+        //Mock mapper
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
+
+        //User in db
+        response = userController.findById(user.getId().toString());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("alan", ((UserDto)response.getBody()).getFirstName());
     }
+
+    @Test
+    @DirtiesContext
+    void deleteUser_Test() {
+        var response = userController.save("1");
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull( response.getBody());
+
+        //Add user in db
+        User user = CreateAndSaveuser();
+
+        //Check if in db
+        var optUser = userRepository.findById(user.getId());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(optUser.isPresent());
+
+        //Mock mapper
+        UserDetailsImpl userDetails = new UserDetailsImpl(Long.valueOf("1"),user.getEmail(),"tutu","toto", true,"psw");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        //User in db
+        response = userController.save(user.getId().toString());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNull(response.getBody());
+
+        //Check IF user delete in db
+        var deleteOptUser = userRepository.findById(user.getId());
+        assertFalse(deleteOptUser.isPresent());
+    }
+
+
+
+
 }
