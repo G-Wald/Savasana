@@ -49,7 +49,7 @@ import { AuthService } from '../features/auth/services/auth.service';
       fixture = TestBed.createComponent(LoginComponent);
       component = fixture.componentInstance;
       router = TestBed.inject(Router);
-      const routerSpy = jest.spyOn(router, 'navigate');
+      jest.spyOn(router, 'navigate');
       router.initialNavigation();
       fixture.detectChanges();
     });

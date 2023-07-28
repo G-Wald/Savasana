@@ -5,7 +5,7 @@ import { RegisterComponent } from '../features/auth/components/register/register
 import { AuthService } from '../features/auth/services/auth.service';
 import { of, throwError } from 'rxjs';
 import { expect } from '@jest/globals';
-import { RouterTestingModule } from '@angular/router/testing';
+
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
