@@ -1,6 +1,6 @@
 describe('Registration Form', () => {
     beforeEach(() => {
-      cy.visit('/register'); // Replace with the URL of your registration page
+      cy.visit('/register'); 
     });
   
     it('should display the registration form', () => {
@@ -16,7 +16,7 @@ describe('Registration Form', () => {
     });
   
     it('should register successfully with valid credentials', () => {
-      // Replace these with valid test data for registration
+      
       const validFirstName = 'Alan';
       const validLastName = 'Coben';
       const validEmail = 'test@example2.com';
@@ -27,9 +27,6 @@ describe('Registration Form', () => {
       cy.get('[formcontrolname="email"]').type(validEmail);
       cy.get('[formcontrolname="password"]').type(validPassword);
       cy.get('button[type="submit"]').click();
-  
-      // Assert that the registration was successful (you can check for a logged-in state or a specific page after registration)
-      // For example, you can check if the registration form is no longer visible, or if a welcome message is displayed.
       cy.get('.login-form').should('exist');
     });
   });
