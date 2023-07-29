@@ -101,6 +101,6 @@ npm install cypress --save-dev
 To run the test use : 
 
 ```
-npx cypress run
+npx cypress open
 
 ```

@@ -41,3 +41,18 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+import '@cypress/code-coverage/support';
+
+Cypress.Commands.add('login', (email, password) => {
+    cy.request({
+      method: 'POST',
+      url: '/api/auth/login', // Remplacez cette URL par l'URL réelle de votre backend pour la connexion
+      body: {
+        email: email,
+        password: password
+      }
+    }).then((response) => {
+      // Stocker le jeton d'authentification dans le local storage
+      window.localStorage.setItem('token', response.body.token);
+    });
+  });
