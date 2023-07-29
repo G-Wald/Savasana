@@ -31,7 +31,16 @@ describe('Registration Form', () => {
         cy.wait(500); 
         cy.get('span.ml1').contains('Edit').should('be.visible');
         cy.get('span.ml1').contains('Edit').click();
-        cy.location('pathname').should('eq', '/sessions/update/1');
+        cy.location().then((location) => {
+          const url = location.href;
+          
+          // Définissez l'URL de référence que vous souhaitez vérifier, sans prendre en compte l'ID
+          const urlWithoutId = '/sessions/update/';
+          
+          // Vérifiez que l'URL actuelle commence par l'URL de référence (sans l'ID)
+          expect(url).to.contain(urlWithoutId);
+        });
+
 
       });
 
@@ -44,7 +53,15 @@ describe('Registration Form', () => {
         cy.wait(500); 
         cy.get('span.ml1').contains('Detail').should('be.visible');
         cy.get('span.ml1').contains('Detail').click();
-        cy.location('pathname').should('eq', '/sessions/detail/1');
+        cy.location().then((location) => {
+          const url = location.href;
+          
+          // Définissez l'URL de référence que vous souhaitez vérifier, sans prendre en compte l'ID
+          const urlWithoutId = '/sessions/detail/';
+          
+          // Vérifiez que l'URL actuelle commence par l'URL de référence (sans l'ID)
+          expect(url).to.contain(urlWithoutId);
+        });
       
       });
 

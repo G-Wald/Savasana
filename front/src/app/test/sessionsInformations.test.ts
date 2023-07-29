@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
@@ -196,4 +196,12 @@ describe('DetailComponent', () => {
     const deleteButtonText = deleteButtonTextSpan.textContent.trim();
     expect(deleteButtonText).toBe('Do not participate'); 
   });
+  it('should go back when calling back()', () => {
+    jest.spyOn(window.history, 'back');
+    component.back();
+    expect(window.history.back).toHaveBeenCalled();
+  });
+
+ 
+
 });

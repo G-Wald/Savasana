@@ -1,6 +1,7 @@
 import * as path from 'path';
 
-export default {
+
+const coverageWebpackConfig = {
   module: {
     rules: [
       {
@@ -18,3 +19,5 @@ export default {
     ],
   },
 };
+
+export default coverageWebpackConfig;

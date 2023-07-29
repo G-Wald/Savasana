@@ -105,7 +105,6 @@ describe('ListComponent', () => {
         const updateButton = fixture.debugElement.query(By.css('button[routerLink^="update"]'));
         expect(updateButton).toBeTruthy();
   
-        // Vérifier que routerLink est correct pour le bouton "Detail"
         expect(updateButton.nativeElement.getAttribute('routerLink')).toBe('/update/' + 1);
         }); 
   });
@@ -115,7 +114,6 @@ describe('ListComponent', () => {
         const detailButton = fixture.debugElement.query(By.css('button[routerLink^="detail"]'));
         expect(detailButton).toBeTruthy();
   
-        // Vérifier que routerLink est correct pour le bouton "Detail"
         expect(detailButton.nativeElement.getAttribute('routerLink')).toBe('/detail/' + 1);
         }); 
     });

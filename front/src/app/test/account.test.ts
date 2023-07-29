@@ -171,7 +171,6 @@ describe('MeComponent Integration Tests', () => {
     const snackBarOpenSpy = jest.spyOn(matSnackBar, 'open');
     const sessionLogOutSpy = jest.spyOn(sessionService, 'logOut');
 
-
     fixture.detectChanges(); 
 
     const deleteButton = fixture.debugElement.query(By.css('button[mat-raised-button][color="warn"]'));

@@ -29,4 +29,18 @@ describe('Registration Form', () => {
       cy.get('button[type="submit"]').click();
       cy.get('.login-form').should('exist');
     });
+    after(() => {
+      cy.visit('/login'); 
+      cy.get('[formcontrolname="email"]').type('test@example2.com');
+        cy.get('[formcontrolname="password"]').type('strongpassword');
+        cy.get('button[type="submit"]').click();
+        cy.wait(500); 
+        cy.get('span').contains('Account').should('exist');
+        cy.get('span').contains('Account').click();
+        cy.location('pathname').should('eq', '/me');
+    
+        cy.contains('button', 'Detail').should('be.visible');
+        cy.contains('button', 'Detail').click();
+        cy.on('window:confirm', () => true);
+    });
   });

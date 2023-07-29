@@ -102,27 +102,16 @@ describe('RegisterComponent', () => {
       password: 'securePassword',
     };
 
-    // Configurer le mock pour que la fonction register() du service d'authentification retourne une valeur observable
     authServiceMock.register.mockReturnValue(of(void 0));
-
-    // Remplir le formulaire avec des informations de connexion valides
     component.form.setValue(registerRequest);
-
-    // Déclencher la soumission du formulaire
     component.submit();
-
-    // Mettre à jour la vue pour refléter les changements
     fixture.detectChanges();
-
-    // Vérifier que le Router a été appelé avec la bonne URL
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
   });
 
   it('should display an error message on registration failure', () => {
-    // Configurer le mock pour que la fonction register() du service d'authentification retourne une erreur
     authServiceMock.register.mockReturnValue(throwError({}));
 
-    // Remplir le formulaire avec des informations de connexion valides
     component.form.setValue({
       email: 'test@example.com',
       firstName: 'John',
@@ -130,19 +119,13 @@ describe('RegisterComponent', () => {
       password: 'securePassword',
     });
 
-    // Déclencher la soumission du formulaire
     component.submit();
-
-    // Mettre à jour la vue pour refléter les changements
     fixture.detectChanges();
-
-    // Vérifier que le message d'erreur est affiché
     const errorMessage = fixture.nativeElement.querySelector('.error');
     expect(errorMessage.textContent).toContain('An error occurred');
   });
 
   it('should call authService.register on form submission', () => {
-    // Remplir le formulaire avec des informations de connexion valides
     component.form.setValue({
       email: 'test@example.com',
       firstName: 'John',
@@ -150,13 +133,8 @@ describe('RegisterComponent', () => {
       password: 'securePassword',
     });
 
-    // Configurer le mock pour que la fonction register() du service d'authentification retourne une valeur observable
     authServiceMock.register.mockReturnValue(of(void 0));
-
-    // Déclencher la soumission du formulaire
     component.submit();
-
-    // Vérifier que la méthode register() du service d'authentification a été appelée avec les bonnes valeurs
     expect(authServiceMock.register).toHaveBeenCalledWith({
       email: 'test@example.com',
       firstName: 'John',

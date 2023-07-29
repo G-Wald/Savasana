@@ -2,7 +2,7 @@
 
 describe('Account', () => {
     
-    it('Vérifier l\'affichage correct des informations utilisateur', () => {
+    it('should display user informations', () => {
         cy.visit('/login'); // Replace with the URL of your login page
         cy.get('[formcontrolname="email"]').type('wald@gmail.com');
         cy.get('[formcontrolname="password"]').type('waldgmail');

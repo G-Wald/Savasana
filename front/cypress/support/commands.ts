@@ -43,6 +43,7 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 import '@cypress/code-coverage/support';
 
+
 Cypress.Commands.add('login', (email, password) => {
     cy.request({
       method: 'POST',

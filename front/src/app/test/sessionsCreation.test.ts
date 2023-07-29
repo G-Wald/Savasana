@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -29,9 +29,15 @@ describe('FormComponent', () => {
   beforeEach(
     waitForAsync(() => {
         sessionApiServiceMock = {
-            create: jest.fn(),
-            update: jest.fn(),
-            detail: jest.fn()
+          create: jest.fn().mockReturnValue(of({ id: 'new-session-id' })),
+          update: jest.fn().mockReturnValue(of({ id: 'updated-session-id' })),
+          detail: jest.fn().mockReturnValue(of({
+            id: 'session-id',
+            name: 'Test Session',
+            date: '2023-07-30',
+            teacher_id: 'teacher-id',
+            description: 'This is a test session.'
+          }))
           };
     
           teacherServiceMock = {
@@ -86,7 +92,6 @@ describe('FormComponent', () => {
     matSnackBar = TestBed.inject(MatSnackBar);
     router = TestBed.inject(Router);
     jest.spyOn(router, 'navigate');
-    router.initialNavigation();
     jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
     fixture.detectChanges();
 
@@ -125,55 +130,11 @@ describe('FormComponent', () => {
     expect(component.sessionForm).toBeDefined();
 
     expect(component.sessionForm?.value).toEqual({
+      date: new Date().toISOString().split('T')[0],
       name: session.name,
       teacher_id: session.teacher_id,
       description: session.description
     });
-  });
-
-/*
-  it('should call SessionApiService.create() when submitting in Create mode', () => {
-    const createSessionSpy = mockSessionApiService.create;
-
-    // Set the component in Create mode
-    component.onUpdate = false;
-    component.sessionForm = TestBed.inject(FormBuilder).group({
-      name: ['Test Session', []],
-      date: ['2023-07-28', []],
-      teacher_id: ['teacher-id', []],
-      description: ['Test Description', []]
-    });
-
-    // Call the submit method
-    component.submit();
-
-    expect(createSessionSpy).toHaveBeenCalled();
-    expect(matSnackBar.open).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
-  });
-
-  it('should call SessionApiService.update() when submitting in Update mode', () => {
-    const updateSessionSpy = mockSessionApiService.update;
-
-    // Set the component in Update mode
-    component.onUpdate = true;
-    component.sessionForm = TestBed.inject(FormBuilder).group({
-      name: ['Updated Session', []],
-      date: ['2023-07-28', []],
-      teacher_id: ['updated-teacher-id', []],
-      description: ['Updated Description', []]
-    });
-
-    // Call the submit method
-    component.submit();
-
-    expect(updateSessionSpy).toHaveBeenCalledWith('1', {
-      id: '1',
-      name: 'Updated Session',
-      date: '2023-07-28',
-      teacher_id: 'updated-teacher-id',
-      description: 'Updated Description'
-    });
-    expect(matSnackBar.open).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
   });
 
   it('should display "Create session" title when onUpdate is false', () => {
@@ -192,6 +153,59 @@ describe('FormComponent', () => {
 
     const titleElement: HTMLElement = fixture.nativeElement.querySelector('h1');
     expect(titleElement.textContent).toContain('Update session');
-  });*/
+  });
+
+  it('should show snackbar and navigate to "sessions" when calling exitPage()', fakeAsync(() => {
+   
+    component.sessionForm = TestBed.inject(FormBuilder).group({
+      name: ['Test Session', []],
+      date: ['2023-07-28', []],
+      teacher_id: ['1', []],
+      description: ['Test Description', []]
+    });
+    component.submit();
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['sessions']);
+  }));
+
+  it('should call SessionApiService.update() when submitting in Update mode', () => {
+    const updateSessionSpy = mockSessionApiService.update;
+
+    // Set the component in Update mode
+    component.onUpdate = true;
+    component.sessionForm = TestBed.inject(FormBuilder).group({
+      name: ['Updated Session', []],
+      date: ['2023-07-28', []],
+      teacher_id: ['updated-teacher-id', []],
+      description: ['Updated Description', []]
+    });
+
+    // Call the submit method
+    component.submit();
+
+    expect(updateSessionSpy).toHaveBeenCalledWith( undefined, {"date": "2023-07-28", "description": "Updated Description", "name": "Updated Session", "teacher_id": "updated-teacher-id"});
+    expect(matSnackBar.open).toHaveBeenCalledWith("Session updated !", 'Close', { duration: 3000 });
+  });
+
+ it('should call SessionApiService.create() when submitting in Create mode', () => {
+    const createSessionSpy = mockSessionApiService.create;
+
+    // Set the component in Create mode
+    component.onUpdate = false;
+    component.sessionForm = TestBed.inject(FormBuilder).group({
+      name: ['Test Session', []],
+      date: ['2023-07-28', []],
+      teacher_id: ['1', []],
+      description: ['Test Description', []]
+    });
+
+    // Call the submit method
+    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
+    submitButton.click();
+
+    component.submit();
+    expect(createSessionSpy).toHaveBeenCalledWith( {"date": "2023-07-28", "description": "Test Description", "name": "Test Session", "teacher_id": "1"});
+    expect(matSnackBar.open).toHaveBeenCalledWith("Session created !", 'Close', { duration: 3000 });
+  });
 
 });
