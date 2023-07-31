@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
-import { SessionInformation } from 'src/app/interfaces/sessionInformation.interface';
+import { SessionInformation } from '../interfaces/sessionInformation.interface';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../features/auth/services/auth.service';
 
@@ -127,20 +127,20 @@ import { AuthService } from '../features/auth/services/auth.service';
       expect(router.navigate).toHaveBeenCalledWith(['/sessions']);
     });
 
-    it('should call authService.register on form submission', () => {
+    it('should call authService.login on form submission', () => {
       // Remplir le formulaire avec des informations de connexion valides
       component.form.setValue({
         email: 'test@example.com',
         password: 'securePassword',
       });
   
-      // Configurer le mock pour que la fonction register() du service d'authentification retourne une valeur observable
+      // Configurer le mock pour que la fonction login() du service d'authentification retourne une valeur observable
       authServiceMock.login.mockReturnValue(of(void 0));
   
       // Déclencher la soumission du formulaire
       component.submit();
   
-      // Vérifier que la méthode register() du service d'authentification a été appelée avec les bonnes valeurs
+      // Vérifier que la méthode login() du service d'authentification a été appelée avec les bonnes valeurs
       expect(authServiceMock.login).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'securePassword',

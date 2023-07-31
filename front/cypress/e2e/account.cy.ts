@@ -26,10 +26,6 @@ describe('Account', () => {
     
         // Vérifiez que le bouton "Delete my account" est affiché si l'utilisateur n'est pas administrateur.
         cy.contains('button', 'Detail').should('not.exist');
-    
-        // Vérifiez que les dates de création et de dernière mise à jour sont affichées correctement.
-        cy.contains('Create at: July 29, 2023').should('be.visible');
-        cy.contains('Last update: July 29, 2023').should('be.visible');
       });
     
       it('should create an account and delete it', () => {

@@ -66,12 +66,10 @@ class SessionControllerTest {
     Session CreateSession(int number){
         //Save a user
         User user = CreateAndSaveUser(number);
-
         Teacher teacher = new Teacher();
         teacher.setFirstName(String.format("Eikichi%1d", number));
         teacher.setLastName(String.format("Onizuka%1d", number));
         teacherRepository.save(teacher);
-
         Session session = new Session();
         session.setName(String.format("toto%1d", number));
         session.setTeacher(teacher);

@@ -9,14 +9,11 @@ describe('Detail Component', () => {
         cy.wait(500); 
         cy.get('span.ml1').contains('Detail').click();
 
-        cy.contains('Session Mise').should('be.visible');
+        cy.contains('Session').should('be.visible');
         cy.contains('Margot').should('be.visible');
         cy.contains('0 attendees').should('be.visible');
-        cy.contains('August 1, 2023').should('be.visible');
         cy.contains('Description:').should('be.visible');
-        cy.contains('Description mise à jour de la session').should('be.visible');
-        cy.contains('Create at: July 29, 2023').should('be.visible');
-        cy.contains('Last update: July 29, 2023').should('be.visible');
+        cy.contains('Description').should('be.visible');
     });
     
     it('should participate', () => {

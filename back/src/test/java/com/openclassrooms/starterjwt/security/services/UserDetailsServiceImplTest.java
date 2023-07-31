@@ -41,11 +41,8 @@ public class UserDetailsServiceImplTest {
     public void testLoadUserByUsername_UserFound() {
         String email = "toto@gmail.com";
         User user = new User(1L, email, "alan", "turing", "password", false, LocalDateTime.now(),LocalDateTime.now());
-
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
         assertNotNull(userDetails);
         assertEquals(email, userDetails.getUsername());
         assertEquals(user.getFirstName(), ((UserDetailsImpl) userDetails).getFirstName());
@@ -56,9 +53,7 @@ public class UserDetailsServiceImplTest {
     @Test
     public void testLoadUserByUsername_UserNotFound() {
         String username = "unknown.user";
-
         when(userRepository.findByEmail(username)).thenReturn(Optional.empty());
-
         assertThrows(UsernameNotFoundException.class,
                 () -> userDetailsService.loadUserByUsername(username));
     }

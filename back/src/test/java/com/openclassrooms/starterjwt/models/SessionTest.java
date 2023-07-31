@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.ConstraintViolation;
@@ -117,6 +118,7 @@ public class SessionTest {
         assertEquals(session, foundSession);
     }
     @Test
+    @DirtiesContext
     public void testSave() {
         Session newSession = new Session();
         newSession.setName("cours d'alchimie");
@@ -127,17 +129,75 @@ public class SessionTest {
         newSession.setCreatedAt(LocalDateTime.now());
         newSession.setUpdatedAt(LocalDateTime.now());
 
+        Session newSession2 = new Session(Long.parseLong("6"),"cours 2",new Date(),"cours2 description", teacher,Arrays.asList(user1),LocalDateTime.now(),LocalDateTime.now() );
+        Session newSession3 = Session.builder()
+                .id(Long.parseLong("7"))
+                .name("cours 3")
+                .date(new Date())
+                .description("cours3 description")
+                .teacher(teacher)
+                .users(Arrays.asList(user1))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
         Session savedSession = sessionRepository.save(newSession);
+        Session savedSession2 = sessionRepository.save(newSession2);
+        Session savedSession3 = sessionRepository.save(newSession3);
+
         assertNotNull(savedSession.getId());
         assertEquals(newSession.getName(), savedSession.getName());
+        assertEquals(newSession2.getName(), savedSession2.getName());
         assertEquals(newSession.getDescription(), savedSession.getDescription());
         assertEquals(newSession.getTeacher(), savedSession.getTeacher());
         assertEquals(newSession.getUsers(), savedSession.getUsers());
+
+        assertEquals(newSession3.getName(), savedSession3.getName());
+        assertEquals(newSession3.getDate(), savedSession3.getDate());
+        assertEquals(newSession3.getDescription(), savedSession3.getDescription());
+        assertEquals(newSession3.getUsers(), savedSession3.getUsers());
+        assertEquals(newSession3.getTeacher(), savedSession3.getTeacher());
+        assertEquals(newSession3.getCreatedAt().toString().substring(0,10), savedSession3.getCreatedAt().toString().substring(0,10));
+        assertEquals(newSession3.getUpdatedAt().toString().substring(0,10), savedSession3.getUpdatedAt().toString().substring(0,10));
+
+        assertEquals(newSession.toString().substring(0,10), savedSession.toString().substring(0,10));
+        assertEquals(savedSession.hashCode(), newSession.hashCode());
+        assertTrue(savedSession.equals(newSession));
     }
 
     @Test
     public void testDelete() {
         sessionRepository.delete(session);
         assertFalse(sessionRepository.existsById(session.getId()));
+    }
+
+    @Test
+    public void TestBuilder(){
+
+        LocalDateTime timeNow =LocalDateTime.now();
+
+        String session1 = Session.builder()
+                .id(Long.parseLong("7"))
+                .name("cours 3")
+                .date(new Date())
+                .description("cours3 description")
+                .teacher(teacher)
+                .users(Arrays.asList(user1))
+                .createdAt(timeNow)
+                .updatedAt(timeNow)
+                .toString();
+
+        String session2 = Session.builder()
+                .id(Long.parseLong("7"))
+                .name("cours 3")
+                .date(new Date())
+                .description("cours3 description")
+                .teacher(teacher)
+                .users(Arrays.asList(user1))
+                .createdAt(timeNow)
+                .updatedAt(timeNow)
+                .toString();
+
+        assertTrue(session1.equals(session2));
     }
 }
