@@ -5,6 +5,7 @@ import { expect } from '@jest/globals';
 import { TeacherService } from './teacher.service';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Teacher } from '../interfaces/teacher.interface';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('TeacherService', () => {
   let service: TeacherService;
@@ -13,7 +14,8 @@ describe('TeacherService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [TeacherService]
+      providers: [TeacherService],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     });
     service = TestBed.inject(TeacherService);
     httpTestingController = TestBed.inject(HttpTestingController);

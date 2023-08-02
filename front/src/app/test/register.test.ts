@@ -5,6 +5,7 @@ import { RegisterComponent } from '../features/auth/components/register/register
 import { AuthService } from '../features/auth/services/auth.service';
 import { of, throwError } from 'rxjs';
 import { expect } from '@jest/globals';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -29,6 +30,7 @@ describe('RegisterComponent', () => {
         { provide: AuthService, useValue: authServiceMock },
         { provide: Router, useValue: routerMock },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
   });
 

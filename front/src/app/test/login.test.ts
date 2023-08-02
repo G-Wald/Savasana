@@ -16,6 +16,7 @@ import { Router } from '@angular/router';
 import { SessionInformation } from '../interfaces/sessionInformation.interface';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../features/auth/services/auth.service';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
   describe('LoginComponent', () => {
     let component: LoginComponent;
@@ -42,6 +43,7 @@ import { AuthService } from '../features/auth/services/auth.service';
         providers: [
           { provide: AuthService, useValue: authServiceMock }, // Utiliser le mock du service d'authentification
         ],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
       }).compileComponents();
     });
   

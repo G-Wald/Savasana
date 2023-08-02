@@ -12,6 +12,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { expect } from '@jest/globals';
 import { SessionService } from 'src/app/services/session.service';
 import { SessionApiService } from '../../services/session-api.service';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { FormComponent } from './form.component';
 
@@ -44,7 +45,8 @@ describe('FormComponent', () => {
         { provide: SessionService, useValue: mockSessionService },
         SessionApiService
       ],
-      declarations: [FormComponent]
+      declarations: [FormComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
       .compileComponents();
 

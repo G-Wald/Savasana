@@ -11,6 +11,8 @@ import { Session } from '../features/sessions/interfaces/session.interface';
 import { Teacher } from '../interfaces/teacher.interface';
 import { FormBuilder } from '@angular/forms';
 import { SessionService } from '../services/session.service';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+
 
 describe('DetailComponent', () => {
   let component: DetailComponent;
@@ -56,7 +58,8 @@ describe('DetailComponent', () => {
         { provide: FormBuilder },
         {provide: SessionService, useValue: mockSessionService },
         MatSnackBar 
-      ]
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
   });
 

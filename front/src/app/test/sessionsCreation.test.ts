@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, waitForAsync } from '@angular/core/testing';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule  } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
@@ -11,6 +11,7 @@ import { Session } from '../features/sessions/interfaces/session.interface';
 import { SessionService } from '../services/session.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Teacher } from '../interfaces/teacher.interface';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('FormComponent', () => {
   let component: FormComponent;
@@ -44,12 +45,7 @@ describe('FormComponent', () => {
             all: jest.fn()
           };
     
-          routerMock = {
-            navigate: jest.fn(), 
-            url: '/sessions/create', 
-            createUrlTree: jest.fn(), 
-            serializeUrl: jest.fn()
-          };
+         
       
           mockSessionService = {
               sessionInformation: {
@@ -65,7 +61,7 @@ describe('FormComponent', () => {
       
       TestBed.configureTestingModule({
         imports: [RouterTestingModule,
-            MatSnackBarModule],
+            MatSnackBarModule, ReactiveFormsModule],
         declarations: [FormComponent],
         providers: [
             FormBuilder,
@@ -73,13 +69,14 @@ describe('FormComponent', () => {
             { provide: SessionApiService, useValue: sessionApiServiceMock  },
             { provide: TeacherService, useValue: teacherServiceMock  },
             { provide: FormBuilder },
-            { provide: Router, useValue: routerMock },
+            { provide: Router, useValue: RouterTestingModule },
             {provide: SessionService, useValue: mockSessionService },
             {
                 provide: ActivatedRoute,
                 useValue: { snapshot: { paramMap: { get: jest.fn() } } }
               }
-        ]
+        ],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
       }).compileComponents();
     })
   );
@@ -91,7 +88,7 @@ describe('FormComponent', () => {
     mockTeacherService = TestBed.inject(TeacherService) as jest.Mocked<TeacherService>;
     matSnackBar = TestBed.inject(MatSnackBar);
     router = TestBed.inject(Router);
-    jest.spyOn(router, 'navigate');
+    jest.spyOn(router, 'navigate').mockImplementation(()=>of(true).toPromise());
     jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
     fixture.detectChanges();
 

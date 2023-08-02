@@ -17,6 +17,7 @@ import { UserService } from '../services/user.service';
 import { Overlay } from '@angular/cdk/overlay'; 
 import { HttpClientModule } from '@angular/common/http';
 import { By } from '@angular/platform-browser';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('MeComponent Integration Tests', () => {
   let component: MeComponent;
@@ -71,7 +72,8 @@ describe('MeComponent Integration Tests', () => {
         Overlay,
       ],
       imports: [RouterTestingModule.withRoutes([]),
-        HttpClientModule]
+        HttpClientModule],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
   }));
 

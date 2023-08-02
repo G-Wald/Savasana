@@ -12,6 +12,7 @@ import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { User } from 'src/app/interfaces/user.interface';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('MeComponent', () => {
   let component: MeComponent;
@@ -43,6 +44,7 @@ describe('MeComponent', () => {
         { provide: SessionService, useValue: sessionServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: UserService, useValue: userServiceSpy },],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
       .compileComponents();
     

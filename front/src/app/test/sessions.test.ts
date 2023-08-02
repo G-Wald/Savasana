@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterTestingModule } from '@angular/router/testing';
 import { By } from '@angular/platform-browser';
-
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 class SessionServiceMock {
     private isAdmin: boolean;
@@ -45,7 +45,8 @@ describe('ListComponent', () => {
         RouterTestingModule
     ],
       providers:[{ provide: SessionService, useFactory: () => new SessionServiceMock(true) },
-        { provide: SessionApiService, useClass: SessionApiServiceMock },]
+        { provide: SessionApiService, useClass: SessionApiServiceMock },],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
   });
 
@@ -132,7 +133,8 @@ describe('ListComponentWithoutAdminRights', () => {
           RouterTestingModule
       ],
         providers:[{ provide: SessionService, useFactory: () => new SessionServiceMock(false) },
-          { provide: SessionApiService, useClass: SessionApiServiceMock },]
+          { provide: SessionApiService, useClass: SessionApiServiceMock },],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA]
       }).compileComponents();
     });
   

@@ -5,6 +5,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule, } from '@angular/router/testing';
 import { expect } from '@jest/globals'; 
 import { SessionService } from '../../../../services/session.service';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { DetailComponent } from './detail.component';
 
@@ -31,6 +32,7 @@ describe('DetailComponent', () => {
       ],
       declarations: [DetailComponent], 
       providers: [{ provide: SessionService, useValue: mockSessionService }],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
       .compileComponents();
       service = TestBed.inject(SessionService);

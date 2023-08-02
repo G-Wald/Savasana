@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { UserService } from './user.service';
 import { User } from '../interfaces/user.interface';
 import { expect } from '@jest/globals';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('UserService', () => {
   let service: UserService;
@@ -11,7 +12,8 @@ describe('UserService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [UserService]
+      providers: [UserService],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     });
 
     service = TestBed.inject(UserService);
