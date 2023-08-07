@@ -31,7 +31,9 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
       await TestBed.configureTestingModule({
         declarations: [LoginComponent],
         imports: [ 
-        RouterTestingModule.withRoutes([]),
+          RouterTestingModule.withRoutes([
+            { path: 'sessions', component: LoginComponent }
+            ]),
         BrowserAnimationsModule,
         HttpClientModule,
         MatCardModule,
@@ -52,7 +54,6 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
       component = fixture.componentInstance;
       router = TestBed.inject(Router);
       jest.spyOn(router, 'navigate');
-      router.initialNavigation();
       fixture.detectChanges();
     });
   

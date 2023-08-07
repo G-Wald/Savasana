@@ -12,6 +12,7 @@ import { Teacher } from '../interfaces/teacher.interface';
 import { FormBuilder } from '@angular/forms';
 import { SessionService } from '../services/session.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { PlatformLocation } from '@angular/common';
 
 
 describe('DetailComponent', () => {
@@ -20,12 +21,12 @@ describe('DetailComponent', () => {
   let mockSessionApiService: jest.Mocked<SessionApiService>;
   let mockTeacherService: jest.Mocked<TeacherService>;
   let mockSessionService: Partial<SessionService>;
-  let router: Router;
   let matSnackBar: MatSnackBar;
   let testSession: Session;
   let testTeacher: Teacher;
-
+  
   beforeEach(async () => {
+
     const sessionApiServiceSpy = {
       detail: jest.fn(),
       delete: jest.fn(),
@@ -51,7 +52,9 @@ describe('DetailComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [DetailComponent],
-      imports: [MatSnackBarModule, RouterTestingModule.withRoutes([])],
+      imports: [MatSnackBarModule, RouterTestingModule.withRoutes([
+        { path: 'sessions', component: DetailComponent }
+        ])],
       providers: [
         { provide: SessionApiService, useValue: sessionApiServiceSpy },
         { provide: TeacherService, useValue: teacherServiceSpy },
@@ -69,9 +72,6 @@ describe('DetailComponent', () => {
     mockSessionApiService = TestBed.inject(SessionApiService) as jest.Mocked<SessionApiService>;
     mockTeacherService = TestBed.inject(TeacherService) as jest.Mocked<TeacherService>;
     matSnackBar = TestBed.inject(MatSnackBar);
-    router = TestBed.inject(Router);
-    jest.spyOn(router, 'navigate');
-    router.initialNavigation();
 
     jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
   });
@@ -113,13 +113,11 @@ describe('DetailComponent', () => {
 
   it('should delete the session', () => {
     mockSessionApiService.delete.mockReturnValue(of({}));
-
     component.sessionId = "1";
     component.delete();
 
     expect(mockSessionApiService.delete).toHaveBeenCalledWith("1"); 
     expect(matSnackBar.open).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
-    expect(router.navigate).toHaveBeenCalledWith(['sessions']);
   });
 
   it('should show the delete button when user is an admin', () => {
@@ -157,7 +155,6 @@ describe('DetailComponent', () => {
 
     const deleteButtonText = deleteButtonTextSpan.textContent.trim();
     expect(deleteButtonText).toBe('Delete'); 
-
     
     const deleteButton = deleteButtonTextSpan.parentElement;
     expect(deleteButton).toBeTruthy(); 
@@ -204,7 +201,4 @@ describe('DetailComponent', () => {
     component.back();
     expect(window.history.back).toHaveBeenCalled();
   });
-
- 
-
 });

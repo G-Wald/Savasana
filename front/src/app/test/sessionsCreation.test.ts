@@ -21,8 +21,6 @@ describe('FormComponent', () => {
   let mockTeacherService: jest.Mocked<TeacherService>;
   let mockSessionService: Partial<SessionService>;
   let router: Router;
-  let testSession: Session;
-  let testTeacher: Teacher;
   let sessionApiServiceMock: Partial<SessionApiService>;
   let teacherServiceMock: Partial<TeacherService>;
   let routerMock: Partial<Router>;
@@ -45,7 +43,12 @@ describe('FormComponent', () => {
             all: jest.fn()
           };
     
-         
+          routerMock = {
+            navigate: jest.fn(), 
+            url: '/sessions/create', 
+            createUrlTree: jest.fn(), 
+            serializeUrl: jest.fn()
+          };
       
           mockSessionService = {
               sessionInformation: {
@@ -60,7 +63,7 @@ describe('FormComponent', () => {
             };
       
       TestBed.configureTestingModule({
-        imports: [RouterTestingModule,
+        imports: [RouterTestingModule.withRoutes([{ path: 'sessions', component: FormComponent }]),
             MatSnackBarModule, ReactiveFormsModule],
         declarations: [FormComponent],
         providers: [
@@ -69,7 +72,7 @@ describe('FormComponent', () => {
             { provide: SessionApiService, useValue: sessionApiServiceMock  },
             { provide: TeacherService, useValue: teacherServiceMock  },
             { provide: FormBuilder },
-            { provide: Router, useValue: RouterTestingModule },
+            { provide: Router, useValue: routerMock },
             {provide: SessionService, useValue: mockSessionService },
             {
                 provide: ActivatedRoute,
@@ -88,7 +91,6 @@ describe('FormComponent', () => {
     mockTeacherService = TestBed.inject(TeacherService) as jest.Mocked<TeacherService>;
     matSnackBar = TestBed.inject(MatSnackBar);
     router = TestBed.inject(Router);
-    jest.spyOn(router, 'navigate').mockImplementation(()=>of(true).toPromise());
     jest.spyOn(matSnackBar, 'open').mockReturnValue({} as any);
     fixture.detectChanges();
 

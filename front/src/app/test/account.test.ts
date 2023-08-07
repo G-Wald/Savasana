@@ -27,8 +27,6 @@ describe('MeComponent Integration Tests', () => {
   let matSnackBar: MatSnackBar;
   let overlay: Overlay;
   let mockSessionApiService: jest.Mocked<SessionApiService>;
-  let testSession: Session;
-  let testTeacher: Teacher;
   let router: Router;
 
   class UserServiceMock {
